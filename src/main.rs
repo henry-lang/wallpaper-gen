@@ -1,4 +1,5 @@
 mod state;
+mod vertex;
 
 use wgpu::SurfaceError;
 use winit::{
@@ -37,6 +38,7 @@ async fn run() {
 
                     WindowEvent::Resized(physical_size) => {
                         state.resize(*physical_size);
+                        state.render();
                     }
 
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
