@@ -83,12 +83,12 @@ impl State {
                 entry_point: "fs_main",
                 targets: &[Some(ColorTargetState {
                     format: config.format,
-                    blend: Some(BlendState::REPLACE),
+                    blend: Some(BlendState::ALPHA_BLENDING),
                     write_mask: ColorWrites::ALL,
                 })],
             }),
             primitive: PrimitiveState {
-                topology: PrimitiveTopology::TriangleList,
+                topology: PrimitiveTopology::TriangleStrip,
                 strip_index_format: None,
                 front_face: FrontFace::Ccw,
                 cull_mode: Some(Face::Back),
@@ -155,9 +155,9 @@ impl State {
                     resolve_target: None,
                     ops: Operations {
                         load: LoadOp::Clear(Color {
-                            r: 0.1,
-                            g: 0.2,
-                            b: 0.3,
+                            r: (64.0f64 / 255.0f64).powf(2.2),
+                            g: (60.0f64 / 255.0f64).powf(2.2),
+                            b: (60.0f64 / 255.0f64).powf(2.2),
                             a: 1.0,
                         }),
                         store: true,
@@ -168,10 +168,10 @@ impl State {
 
             render_pass.set_pipeline(&self.render_pipeline);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            render_pass.draw(0..3, 0..1);
+            render_pass.draw(0..6, 0..1);
         }
 
-        self.queue.submit(std::iter::once(encoder.finish()));
+        self.queue.submit(Some(encoder.finish()));
         output.present();
 
         Ok(())
