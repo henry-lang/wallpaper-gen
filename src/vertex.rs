@@ -4,13 +4,13 @@ use wgpu::{VertexBufferLayout, VertexStepMode};
 #[repr(C)]
 #[derive(Copy, Clone, Pod, Zeroable)]
 pub struct Vertex {
-    position: [f32; 3],
+    position: [f32; 2],
     color: [f32; 4],
 }
 
 impl Vertex {
     const ATTRIBS: [wgpu::VertexAttribute; 2] =
-        wgpu::vertex_attr_array![0 => Float32x3, 1 => Float32x4];
+        wgpu::vertex_attr_array![0 => Float32x2, 1 => Float32x4];
 
     pub fn layout() -> VertexBufferLayout<'static> {
         VertexBufferLayout {
@@ -21,32 +21,24 @@ impl Vertex {
     }
 }
 
-pub const GREEN: [f32; 4] = [0.3392, 0.3992, 0.2718, 1.0];
-pub const TRANSPARENT: [f32; 4] = [0.3392, 0.3992, 0.2718, 0.0];
+pub const COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
+pub const TRANSPARENT: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
 
 pub const VERTICES: &[Vertex] = &[
     Vertex {
-        position: [0.1, 0.1, 0.0],
-        color: GREEN,
+        position: [200.0, 250.0],
+        color: COLOR,
     },
     Vertex {
-        position: [0.4, 0.4, 0.0],
+        position: [200.0, 200.0],
+        color: COLOR,
+    },
+    Vertex {
+        position: [250.0, 250.0],
         color: TRANSPARENT,
     },
     Vertex {
-        position: [0.1, 0.4, 0.0],
-        color: GREEN,
-    },
-    Vertex {
-        position: [0.4, 0.1, 0.0],
+        position: [250.0, 200.0],
         color: TRANSPARENT,
-    },
-    Vertex {
-        position: [0.4, 0.4, 0.0],
-        color: TRANSPARENT,
-    },
-    Vertex {
-        position: [0.1, 0.1, 0.0],
-        color: GREEN,
     },
 ];
