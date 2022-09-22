@@ -9,8 +9,8 @@ use renderer::Renderer;
 async fn run() {
     env_logger::init();
 
-    let mut state = Renderer::new((1920, 1080)).await;
-    state.render().await;
+    let mut renderer = Renderer::new((1920, 1080)).await;
+    renderer.render().await;
 }
 
 fn main() {
