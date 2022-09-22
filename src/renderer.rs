@@ -18,6 +18,7 @@ impl Renderer {
     pub async fn new(texture_size: (u32, u32)) -> Self {
         let instance = wgpu::Instance::new(wgpu::Backends::all());
 
+        println!("Requesting adapter");
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
@@ -55,6 +56,7 @@ impl Renderer {
             mapped_at_creation: false,
         });
 
+        println!("Creating render pipeline");
         let pipeline = Pipeline::new(&device, wgpu::TextureFormat::Rgba8UnormSrgb);
 
         Self {
@@ -71,6 +73,7 @@ impl Renderer {
     }
 
     pub async fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+        println!("Rendering image.png");
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -99,11 +102,26 @@ impl Renderer {
             self.pipeline.render(
                 &mut render_pass,
                 &mut self.queue,
-                &[Instance {
-                    transform: glam::Mat4::from_translation((0.0, 50.0, 0.0).into())
+                &[
+                    Instance {
+                        transform: glam::Mat4::from_scale_rotation_translation(
+                            glam::Vec3::new(500.0, 500.0, 0.0),
+                            glam::Quat::from_rotation_z(std::f32::consts::FRAC_PI_4),
+                            glam::Vec3::ZERO,
+                        )
                         .to_cols_array_2d(),
-                    color: [1.0, 0.0, 0.0],
-                }],
+                        color: [1.0, 0.0, 0.0],
+                    },
+                    Instance {
+                        transform: glam::Mat4::from_scale_rotation_translation(
+                            glam::Vec3::new(500.0, 500.0, 0.0),
+                            glam::Quat::from_rotation_z(std::f32::consts::FRAC_PI_3 * 3.0 + std::f32::consts::FRAC_2_SQRT_PI),
+                            glam::Vec3::new(960.0, 540.0, 0.0),
+                        )
+                        .to_cols_array_2d(),
+                        color: [0.0, 1.0, 0.0],
+                    },
+                ],
             );
         }
 
@@ -132,12 +150,11 @@ impl Renderer {
         );
 
         self.queue.submit(Some(encoder.finish()));
-        println!("tf");
+
+        println!("Exporting image.png");
         {
             let buffer_slice = self.output_buffer.slice(..);
 
-            // NOTE: We have to create the mapping THEN device.poll() before await
-            // the future. Otherwise the application will freeze.
             let (tx, rx) = futures_intrusive::channel::shared::oneshot_channel();
             buffer_slice.map_async(wgpu::MapMode::Read, move |result| {
                 tx.send(result).unwrap();

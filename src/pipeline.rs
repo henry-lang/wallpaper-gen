@@ -153,7 +153,7 @@ impl Pipeline {
                 })],
             }),
             primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleStrip,
+                topology: wgpu::PrimitiveTopology::TriangleList,
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
                 cull_mode: Some(wgpu::Face::Back),
@@ -206,6 +206,8 @@ impl Pipeline {
         queue: &mut wgpu::Queue,
         instances: &[Instance],
     ) {
+        queue.write_buffer(&self.instance_buffer, 0, bytemuck::cast_slice(instances));
+
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
