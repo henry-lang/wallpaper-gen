@@ -202,17 +202,17 @@ impl Pipeline {
 
     pub fn render<'a>(
         &'a mut self,
-        render_pass: &mut wgpu::RenderPass<'a>,
+        pass: &mut wgpu::RenderPass<'a>,
         queue: &mut wgpu::Queue,
         instances: &[Instance],
     ) {
         queue.write_buffer(&self.instance_buffer, 0, bytemuck::cast_slice(instances));
 
-        render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
-        render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-        render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
-        render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-        render_pass.draw_indexed(0..INDICES.len() as u32, 0, 0..instances.len() as u32);
+        pass.set_pipeline(&self.render_pipeline);
+        pass.set_bind_group(0, &self.camera_bind_group, &[]);
+        pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+        pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
+        pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+        pass.draw_indexed(0..INDICES.len() as u32, 0, 0..instances.len() as u32);
     }
 }

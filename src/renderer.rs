@@ -1,4 +1,4 @@
-use std::{mem::size_of, num::NonZeroU32};
+use std::{fs::File, io::BufWriter, mem::size_of, num::NonZeroU32};
 
 use crate::pipeline::{Instance, Pipeline};
 
@@ -72,7 +72,7 @@ impl Renderer {
         }
     }
 
-    pub async fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+    pub async fn render(&mut self, instances: &[Instance]) -> Result<(), wgpu::SurfaceError> {
         println!("Rendering image.png");
         let mut encoder = self
             .device
@@ -99,30 +99,8 @@ impl Renderer {
                 depth_stencil_attachment: None,
             });
 
-            self.pipeline.render(
-                &mut render_pass,
-                &mut self.queue,
-                &[
-                    Instance {
-                        transform: glam::Mat4::from_scale_rotation_translation(
-                            glam::Vec3::new(500.0, 500.0, 0.0),
-                            glam::Quat::from_rotation_z(std::f32::consts::FRAC_PI_4),
-                            glam::Vec3::ZERO,
-                        )
-                        .to_cols_array_2d(),
-                        color: [1.0, 0.0, 0.0],
-                    },
-                    Instance {
-                        transform: glam::Mat4::from_scale_rotation_translation(
-                            glam::Vec3::new(500.0, 500.0, 0.0),
-                            glam::Quat::from_rotation_z(std::f32::consts::FRAC_PI_3 * 3.0 + std::f32::consts::FRAC_2_SQRT_PI),
-                            glam::Vec3::new(960.0, 540.0, 0.0),
-                        )
-                        .to_cols_array_2d(),
-                        color: [0.0, 1.0, 0.0],
-                    },
-                ],
-            );
+            self.pipeline
+                .render(&mut render_pass, &mut self.queue, instances);
         }
 
         encoder.copy_texture_to_buffer(
@@ -164,9 +142,15 @@ impl Renderer {
 
             let data = buffer_slice.get_mapped_range();
 
-            use image::{ImageBuffer, Rgba};
-            let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(1920, 1080, data).unwrap();
-            buffer.save("image.png").unwrap();
+            let file = File::create("image.png").unwrap();
+            let writer = BufWriter::new(file);
+            let mut encoder = png::Encoder::new(writer, 1920, 1080);
+            encoder.set_color(png::ColorType::Rgba);
+            encoder.set_depth(png::BitDepth::Eight);
+
+            let mut png_writer = encoder.write_header().unwrap();
+
+            png_writer.write_image_data(&data).unwrap();
         }
 
         self.output_buffer.unmap();
