@@ -7,6 +7,7 @@ pub struct Renderer {
     queue: wgpu::Queue,
 
     texture: wgpu::Texture,
+    texture_size: (u32, u32),
     texture_view: wgpu::TextureView,
 
     output_buffer: wgpu::Buffer,
@@ -65,6 +66,7 @@ impl Renderer {
 
             texture,
             texture_view,
+            texture_size,
 
             output_buffer,
 
@@ -115,14 +117,14 @@ impl Renderer {
                 layout: wgpu::ImageDataLayout {
                     offset: 0,
                     // TODO: FIX
-                    bytes_per_row: NonZeroU32::new((size_of::<u32>() * 1920) as u32),
-                    rows_per_image: NonZeroU32::new(1080),
+                    bytes_per_row: NonZeroU32::new(size_of::<u32>() as u32 * self.texture_size.0),
+                    rows_per_image: NonZeroU32::new(self.texture_size.1),
                 },
             },
             // TODO: FIX PT 2
             wgpu::Extent3d {
-                width: 1920,
-                height: 1080,
+                width: self.texture_size.0,
+                height: self.texture_size.1,
                 depth_or_array_layers: 1,
             },
         );
@@ -144,7 +146,7 @@ impl Renderer {
 
             let file = File::create("image.png").unwrap();
             let writer = BufWriter::new(file);
-            let mut encoder = png::Encoder::new(writer, 1920, 1080);
+            let mut encoder = png::Encoder::new(writer, self.texture_size.0, self.texture_size.1);
             encoder.set_color(png::ColorType::Rgba);
             encoder.set_depth(png::BitDepth::Eight);
 

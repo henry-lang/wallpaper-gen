@@ -38,6 +38,8 @@ async fn run() {
         size: (1920, 1080),
         colors: vec![
             [64.0, 60.0, 60.0f32].map(|c| (c / 255.0).powf(2.2)),
+            [64.0, 60.0, 60.0f32].map(|c| (c / 255.0).powf(2.2)),
+            [64.0, 60.0, 60.0f32].map(|c| (c / 255.0).powf(2.2)),
             [124.0, 133.0, 113.0f32].map(|c| (c / 255.0).powf(2.2)),
             [219.0, 186.0, 139.0f32].map(|c| (c / 255.0).powf(2.2)),
         ],
@@ -46,7 +48,7 @@ async fn run() {
     };
 
     env_logger::init();
-    let mut renderer = Renderer::new((1920, 1080)).await;
+    let mut renderer = Renderer::new((3840, 2160)).await;
     let mut rand = StdRand::default();
 
     renderer

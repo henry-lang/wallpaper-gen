@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 pub struct Config {
     pub size: (u32, u32),
     pub count: usize,
